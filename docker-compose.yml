@@ -1,0 +1,84 @@
+#version: '3.8'
+name: backend-301
+services:
+  reverse-proxy:
+    image: traefik:latest
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--entrypoints.web.address=:80'
+    ports:
+      - '80:80'
+      - '8080:8080'
+    networks:
+      - 'demo-net'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+    #  - com.datadoghq.ad.tags:'["owner:coreteam"]'
+      - owner:coreteam
+    environment:
+      - DD_SERVICE=proxy
+    #  - DD_DOCKER_LABELS_AS_TAGS:
+
+  animals:
+    build: .
+    container_name: animals-service-traced
+    image: animals-service-traced
+    ports:
+      - '5001:5001'
+    networks:
+      - 'demo-net'
+    environment:
+      # Allows ddtrace to submit to datadog-agent, which resolves to the DD agent container instead of localhost (as though agent is on hosting machine)
+      - DD_AGENT_HOST=datadog-agent
+      - DD_SERVICE=animals
+      - DD_ENV=dev
+      - DD_VERSION=0.1.1
+      - DD_LOGS_INJECTION=true
+      - DD_TRACE_SAMPLE_RATE=1
+      - DD_TAGS="custom-trace-agent:workshop3"
+    labels:
+      - 'traefik.enable=true'
+      # Reachable at animals.localhost
+      - 'traefik.http.routers.animals.rule=Host(`animals3.localhost`)'
+      - 'traefik.http.routers.animals.entrypoints=web'
+      - com.datadoghq.ad.tags:'["subservice:animalsapp"]'
+
+    depends_on:
+      - 'reverse-proxy'
+      - 'datadog-agent'
+
+  datadog-agent:
+    pid: host
+    container_name: datadog-agent-301
+    env_file:
+      - ../../../docker.env
+    environment:
+      # DD_API key is specified in a docker.env file
+      - DD_SITE=datadoghq.com
+      - DD_APM_ENABLED=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE="container_name:datadog-agent-301"
+      - DD_HOSTNAME=dev-machine-301
+      - DD_ENV=dev
+      - DD_TAGS="custom-agent:workshop3 infragrp:team4"
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_SERVICE:agent
+      - DD_APM_REPLACE_TAGS=[{"name":"resource.name","pattern":"GET /e.*","repl":"GET /terror"}]
+     # - DD_CONTAINER_LABELS_AS_TAGS='{"":"service"}'
+    image: 'datadog/agent'
+    ports:
+      - '8125:8125'
+      - '8126:8126'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - '/proc/:/host/proc/:ro'
+      - '/sys/fs/cgroup/:/host/sys/fs/cgroup:ro'
+      - '/var/lib/docker/containers:/var/lib/docker/containers:ro'
+    networks:
+      - 'demo-net'
+
+networks:
+  demo-net:
