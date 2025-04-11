@@ -1,7 +1,2 @@
 apiVersion: v3
 kind: system
-metadata:
-  name: my-animals
-  displayName: My Animals
-  tags:
-    - owner:frontdesk
