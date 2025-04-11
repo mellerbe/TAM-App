@@ -1,2 +1,4 @@
 apiVersion: v3
 kind: system
+metadata:
+  name: MyApp
