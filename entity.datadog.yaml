@@ -5,8 +5,7 @@ metadata:
   displayName: My Animals
   tags:
     - owner:frontdesk
-  tags:
-    - tag:value
+    - support:deskjockies
   links:
     - name: animal support runbook
       type: runbook
