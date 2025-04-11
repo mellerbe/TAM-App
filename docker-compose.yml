@@ -34,10 +34,10 @@ services:
       - DD_AGENT_HOST=datadog-agent
       - DD_SERVICE=my-animals
       - DD_ENV=dev
-      - DD_VERSION=0.1.1
+      - DD_VERSION=0.1.2
       - DD_LOGS_INJECTION=true
       - DD_TRACE_SAMPLE_RATE=1
-      - DD_TAGS="custom-trace-agent:my-animals"
+      - DD_TAGS=custom-trace-agent:my-animals,owner:frontdesk,support:vets
     labels:
       - 'traefik.enable=true'
       # Reachable at animals.localhost
