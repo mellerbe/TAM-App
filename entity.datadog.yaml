@@ -5,3 +5,12 @@ metadata:
   displayName: My Animals
   tags:
     - owner:frontdesk
+  tags:
+    - tag:value
+  links:
+    - name: animal support runbook
+      type: runbook
+      url: https://www.google.com
+    - name: Home Page
+      type: runbook
+      url: http://my-animals.localhost
