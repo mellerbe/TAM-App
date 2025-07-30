@@ -13,3 +13,7 @@ metadata:
     - name: Home Page
       type: runbook
       url: http://my-animals.localhost
+spec:
+  components:
+    - service:animals-2
+    - service:listing-cats
